@@ -1,6 +1,6 @@
 *Proudly built with svelte.*
 
-# HFUT-variant University Physics Experiments Calculator (Mainly for uncertainty calculations), in its early stage.
+# HFUT-variant University Physics Experiments Calculator (Mainly for uncertainty calculations), at early stage.
 
 本不确定度计算器系用张霆主编本大学物理实验之计算方法。
 
