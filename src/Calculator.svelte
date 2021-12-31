@@ -1,7 +1,8 @@
 <script lang="ts">
     import Paper, { Title, Subtitle, Content } from "@smui/paper";
     import LayoutGrid, { Cell } from "@smui/layout-grid";
-    import Button from "@smui/button";
+    import Button, { Group, GroupItem, Label } from '@smui/button';
+    import Menu, { MenuComponentDev } from '@smui/menu';
     import SingleItem from "./Dialogs/SingleItem.svelte";
     import MultiItem from "./Dialogs/MultiItem.svelte";
     import ConstantItem from "./Dialogs/ConstantItem.svelte";
@@ -14,10 +15,16 @@
     import IconButton from "@smui/icon-button";
     import katex from "katex";
     import Io from "./Dialogs/IO.svelte";
+    import ResultPage from "./ResultPage.svelte";
+    let menu:MenuComponentDev;
     let single = { opened: false, pointer: null };
     let multi = { opened: false, pointer: null };
     let constant = { opened: false, pointer: null };
     let formula = { opened: false, pointer: null };
+    let renderContext;
+    let defaults = [
+        {name:"速度加速度测量时间",value:`{"SINGLE":[{"symbol":"a","unit":"m/s^2","value":5.03,"grad":0.1}],"MULTI":[{"symbol":"v","unit":"m/s","values":[2.51,2.48,2.49],"grad":0.1,"len":3}],"CONSTANT":[],"FORMULA":[{"value":"t=v/a"}]}`},
+    ];
     let donate = false;
     let io = false;
     let selectedIndex = null;
@@ -71,10 +78,36 @@
                     >
                 </Cell>
                 <Cell span={2}>
+                    <Group>
+                        <Button on:click={() => {
+                            io = true;
+                        }}>
+                          <Label>导出/入数据</Label>
+                        </Button>
+                        <div use:GroupItem>
+                          <Button
+                            on:click={() => menu.setOpen(true)}
+                            style="padding: 0; min-width: 36px;"
+                          >
+                            <Icon class="material-icons" style="margin: 0;">arrow_drop_down</Icon>
+                          </Button>
+                          <Menu bind:this={menu} anchorCorner="TOP_LEFT">
+                            <List>
+                                {#each defaults as item}
+                                <Item on:SMUI:action={() => data.set(JSON.parse(item.value))}>
+                                    <Text>{item.name}</Text>
+                                  </Item>
+                                {/each}
+                            </List>
+                          </Menu>
+                        </div>
+                      </Group>
+                </Cell>
+                <Cell span={2}>
                     <Button
                         on:click={() => {
-                            io = true;
-                        }}>导出/入数据</Button
+                            renderContext = $data;
+                        }}>生成报告</Button
                     >
                 </Cell>
             </LayoutGrid>
@@ -201,10 +234,11 @@
                     {/if}
                 {/each}
             </List>
+            <ResultPage bind:render={renderContext}></ResultPage>
         </Content>
     </Paper>
 </div>
-<div style="position: absolute;bottom:1em;right:1em;">
+<div style="position: absolute;bottom:1em;right:1em;display:none">
     <Fab on:click={() => (donate = !donate)}>
         <Icon class="material-icons">request_quote</Icon>
     </Fab>

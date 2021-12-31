@@ -32,10 +32,15 @@ const Calculator = {
             uncertainty: null,
             relativeUncertainty: null,
             latexForm: null,
+            fullLatexForm: null
         };
         res.uncertainty = res.uncertaintyB;
         res.relativeUncertainty = (res.uncertainty / res.value * 100).toFixed(1);
         res.latexForm = `${res.symbol} = (${res.value} \\pm ${res.uncertainty})~\\mathrm{${res.unit}} \\ E_{${res.symbol}} = ${res.relativeUncertainty} \\%`;
+        res.fullLatexForm = `\\overline{${res.symbol}} = ${res.value}~\\mathrm{${res.unit}} 
+        \\\\ \\sigma_{A, ${res.symbol}}=${res.uncertaintyA}~\\mathrm{${res.unit}}, \\sigma_{B, ${res.symbol}}=\\frac{\\mathrm{minGrad}}{2\\sqrt3}=${res.uncertaintyB}~\\mathrm{${res.unit}}
+        \\\\ \\sigma_{${res.symbol}}=\\sqrt{\\sigma_{A, ${res.symbol}}^2+\\sigma_{B, ${res.symbol}}^2}=${res.uncertainty}~\\mathrm{${res.unit}}
+        \\\\ E_{${res.symbol}}=\\frac{\\sigma_{${res.symbol}}}{${res.symbol}}=${res.relativeUncertainty}\\%\\\\`+res.latexForm;
         return res;
     },
     createMultiItem() {
@@ -70,10 +75,22 @@ const Calculator = {
             uncertainty: null,
             relativeUncertainty: null,
             latexForm: null,
+            fullLatexForm: null
         };
         res.uncertainty = (res.uncertaintyA ** 2 + res.uncertaintyB ** 2) ** .5;
         res.relativeUncertainty = (res.uncertainty / res.value * 100).toFixed(1);
         res.latexForm = `${res.symbol} = (${res.value} \\pm ${res.uncertainty})~\\mathrm{${res.unit}} \\ E_{${res.symbol}} = ${res.relativeUncertainty} \\%`;
+        res.fullLatexForm = `\\overline{${res.symbol}} =\\frac{\\sum_{i=1}^{${ori.len}}{${res.symbol}_i}}{${ori.len}}= ${res.value}~\\mathrm{${res.unit}} 
+        \\\\ \\sigma_{A, ${res.symbol}}=\\sqrt{
+            \\frac{
+                \\sum_{i=1}^{${ori.len}}{
+                    (${res.symbol}_i-\\overline{${res.symbol}})^2
+                }
+            }{${ori.len}*${ori.len-1}}
+        }
+        =${res.uncertaintyA}~\\mathrm{${res.unit}}, \\sigma_{B, ${res.symbol}}=\\frac{\\mathrm{minGrad}}{2\\sqrt3}=${res.uncertaintyB}~\\mathrm{${res.unit}}
+        \\\\ \\sigma_{${res.symbol}}=\\sqrt{\\sigma_{A, ${res.symbol}}^2+\\sigma_{B, ${res.symbol}}^2}=${res.uncertainty}~\\mathrm{${res.unit}}
+        \\\\ E_{${res.symbol}}=\\frac{\\sigma_{${res.symbol}}}{${res.symbol}}=${res.relativeUncertainty}\\%\\\\`+res.latexForm;
         return res;
     },
     createConstantItem() {
@@ -131,6 +148,7 @@ const Calculator = {
             uncertainty: null,
             relativeUncertainty: null,
             latexForm: null,
+            fullLatexForm: null
         }
         let calform = null;
         [res.symbol, calform] = ori.value.split("=").map(a=>a.trim());
@@ -167,6 +185,9 @@ const Calculator = {
         res.uncertainty = u.pow(0.5).evaluate().text();
         res.relativeUncertainty = (parseFloat(res.uncertainty)/parseFloat(res.value)*100).toFixed(1);
         res.latexForm = `${res.symbol} = (${res.value} \\pm ${res.uncertainty})~\\mathrm{${res.unit}} \\ E_{${res.symbol}} = ${res.relativeUncertainty} \\%`;
+        res.fullLatexForm = `${ori.value} = ${res.value}~\\mathrm{${res.unit}} \\\\
+        \\sigma_{${res.symbol}}=\\sqrt{${Object.keys(uncer).map(val=>"(\\frac{\\partial("+res.symbol+")}{\\partial("+val+")}\\sigma_{"+val+"})^2").join("+")}}=${res.uncertainty})~\\mathrm{${res.unit}}
+        \\\\E_{${res.symbol}}=\\frac{\\sigma_{${res.symbol}}}{${res.symbol}}=${res.relativeUncertainty}\\%\\\\`+res.latexForm;
         return res;
     }
 };
